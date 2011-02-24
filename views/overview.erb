@@ -1,0 +1,31 @@
+<%= partial :queues %>
+<hr />
+<%= partial :working %>
+<%= poll %>
+
+<script>
+  var socket = new WebSocket("ws://localhost:8080");
+
+  socket.onopen = function() {
+    console.log("socket open!");
+  };
+
+  socket.onmessage = function(msg) {
+    if(!msg.data.match(/^\{/)) { return; }
+
+    var event = JSON.parse(msg.data)
+    var container = $("#queue_" + event.queue);
+    console.log(event.event);
+    console.log(container);
+    if(event.event == "enqueued") {
+      container.prepend("<img src='/dot.png'/>");
+    } else if(event.event == "finished") {
+      container.find('img:first').remove();
+    } else if(event.event == "started") {
+      // ...
+    } else {
+      console.log("Not sure what to do with " + msg.data);
+    }
+  };
+
+</script>
